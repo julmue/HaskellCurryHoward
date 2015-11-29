@@ -73,7 +73,7 @@ data And :: * -> * -> *  where
 --
 --   'projectL' corresponds to fst.
 
-projectL :: forall a b . (a, b) -> a
+projectL :: forall a b. (a, b) -> a
 projectL (a, _) = a 
 
 -- | === Elemination Rule 2 (Right Projection)
@@ -84,7 +84,7 @@ projectL (a, _) = a
 --
 --   'projectR' corresponds to snd.
 
-projectR :: forall a b . (a, b) -> b
+projectR :: forall a b. (a, b) -> b
 projectR (_, b) = b 
 
 -- | == Connective: Disjunction (OR)  
@@ -192,24 +192,24 @@ rv = flip mp
 --   * L.Ip.: 
 --   * C.Ip.:   
 --
-conAssoc :: forall a b c . ((a, b), c) -> (a, (b, c))
+conAssoc :: forall a b c. ((a, b), c) -> (a, (b, c))
 conAssoc x = (fst (fst x), (snd (fst x), snd x)) 
 
 -- | Theorem: commutativity of conjunction
 --
 --   * L.Ip.: 
 --   * C.Ip.:   
-conComm :: forall a b . (a, b) -> (b, a)
+conComm :: forall a b. (a, b) -> (b, a)
 conComm x = (snd x, fst x)
 
 -- | Theorem: associativity of disjunction
 --
-disAssoc :: forall a b c . Either a (Either b c) -> Either (Either a b) c
+disAssoc :: forall a b c. Either a (Either b c) -> Either (Either a b) c
 disAssoc = elimOr (Left . Left) (elimOr (Left . Right) Right)
 
 -- | Theorem: commutativity of disjunction
 --
-disCommu :: forall a b . Either a b -> Either b a
+disCommu :: forall a b. Either a b -> Either b a
 disCommu = elimOr Right Left
 
 -- | Theorem: conjunction elimination in the first hypothesis
@@ -290,10 +290,10 @@ monotonicity h0 _ = h0
 
 -- | Theorem: Absorption
 --
-abs1 :: forall a b . Either a (a,b) -> a
+abs1 :: forall a b. Either a (a,b) -> a
 abs1 = elimOr id fst
 
-abs2 :: forall a b . (a, Either a b) -> a
+abs2 :: forall a b. (a, Either a b) -> a
 abs2 = fst
 
 -- | Theorem: Frege's Theorem
@@ -303,7 +303,7 @@ abs2 = fst
 --
 -- 'on' in Haskell
 --
-frege :: forall p q r . (p -> (q -> r)) -> (p -> q) -> p -> r
+frege :: forall p q r. (p -> (q -> r)) -> (p -> q) -> p -> r
 frege f1 f2 p = (f1 p) (f2 p)  
 
 -- | Theorem: hypothetical syllogism: 
@@ -312,7 +312,7 @@ frege f1 f2 p = (f1 p) (f2 p)
 --   * C.Ip.: 
 --
 --   Same as function composition operator '.'.
-hSyll :: forall a b c . (a -> b) -> (b -> c) -> (a -> c)
+hSyll :: forall a b c. (a -> b) -> (b -> c) -> (a -> c)
 hSyll f1 f2 a = f2 (f1 a)
 
 -- Theorem: Monotonicity of Entailment
@@ -320,7 +320,7 @@ hSyll f1 f2 a = f2 (f1 a)
 --   * L.Ip.:   
 --   * C.Ip.: 
 --
-mon :: forall a b c . (a -> b) -> ((a,c) -> b)
+mon :: forall a b c. (a -> b) -> ((a,c) -> b)
 mon f x = f (fst x)
 
 -- Theorem: Distributivity
@@ -338,7 +338,7 @@ dis2 = elimOr (\(a, c) -> (Left a, c)) (\(b, c) -> (Right b, c))
 -- classic propositional calculus
 
 -- | Theorem: Tertium Non Datur / Law Of The Excluded Middle
-tnd :: forall a . Either a (Not a)
+tnd :: forall a. Either a (Not a)
 tnd = undefined
 
 -- | Theorem: Double Negation
