@@ -15,17 +15,24 @@ import Prelude hiding (id, curry, uncurry, flip)
 --
 data Absurd
 
+-- | Elimination Rule for Absurd:
+--
+--   * L.Ip.: If the absurd can be proven, everything can be proven.
+--   * C.Ip.: program termination
+
+elimAbsurd :: Absurd -> a
+elimAbsurd _ = undefined
+
+
 -- | __Connective: Negation__
 --
---   * L.Ip.: intuitionistic logic is a proof from type 'a' to Absurd.
+--   * L.Ip.: Negation  in intuitionistic logic is a proof from 
+--            type 'a' to Absurd.
 --   * C.Ip.:
 --
 --   In construcitve logic negation has no introduction rule. 
 type Not a = a -> Absurd
 
--- | Elimination Rule (Negation):
-elimAbsurd :: Absurd -> a
-elimAbsurd _ = undefined
  
 -- | __Connective: Conjunction__ 
 --
@@ -82,7 +89,7 @@ projectR (_, b) = b
 
 -- | == Connective: Disjunction (OR)  
 --
---	 Disjunction 'OR' is a sum type parameterized over two 
+--   Disjunction 'OR' is a sum type parameterized over two 
 --   typevariables.
 --
 --   * L.Ip.: Either A can be proven or B can be proven.
@@ -111,8 +118,8 @@ data Or :: * -> * -> * where
 -- 
 elimOr :: forall a b c. (a -> c) -> (b -> c) -> Either a b -> c
 elimOr f1 f2 x = case x of
-	Left a -> f1 a
-	Right b -> f2 b 
+    Left a -> f1 a
+    Right b -> f2 b 
 
 {- 3 Implication 
 -}
