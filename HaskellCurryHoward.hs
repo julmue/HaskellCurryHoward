@@ -8,14 +8,14 @@ module CurryHoward where
 
 import Prelude hiding (id, curry, uncurry, flip)
 
--- |  __The Absurd__ (aka Bottom, Empty, False)
+-- |  == The Absurd (aka Bottom, Empty, False)
 --
 --    * L.Ip.: the proposition without a proof  
 --    * C.Ip.: the type without inhabitants, the empty type
 --
 data Absurd
 
--- | Elimination Rule for Absurd:
+-- | === Elimination Rule for Absurd:
 --
 --   * L.Ip.: If the absurd can be proven, everything can be proven.
 --   * C.Ip.: program termination
@@ -24,7 +24,7 @@ elimAbsurd :: Absurd -> a
 elimAbsurd _ = undefined
 
 
--- | __Connective: Negation__
+-- | == Connective: Negation 
 --
 --   * L.Ip.: Negation  in intuitionistic logic is a proof from 
 --            type 'a' to Absurd.
@@ -34,12 +34,12 @@ elimAbsurd _ = undefined
 type Not a = a -> Absurd
 
  
--- | __Connective: Conjunction__ 
+-- | == Connective: Conjunction  
 --
 --   The conjunction is a product type paremeterized over two typevars; 
 --   (a pair/tuple, isomorphic to "(a,b)" in prelude) 
 --
---   Introduction Rule (And):
+--   === Introduction Rule (And):
 -- 
 --   >     a : A    b : B
 --   >    ---------------- (I And)
@@ -62,7 +62,7 @@ data And :: * -> * -> *  where
 -- this is the same as 'data And a b = Conj a b'
 -- but with explicit kind signatures and type annotations.
  
--- | Conjunction: Elemination Rule 1 (Left Projection)
+-- | === Conjunction: Elimination Rule 2 (Left Projection)
 --
 --   * L.Ip.:   
 --   * C.Ip.: projection from dimension n + 1 
@@ -76,7 +76,7 @@ data And :: * -> * -> *  where
 projectL :: forall a b . (a, b) -> a
 projectL (a, _) = a 
 
--- | Conjunction: Elemination Rule 1 (Right Projection)
+-- | === Elemination Rule 2 (Right Projection)
 -- 
 --   >     (a,b) : A * B               
 --   >    ---------------(E2 And)    
@@ -121,64 +121,110 @@ elimOr f1 f2 x = case x of
     Left a -> f1 a
     Right b -> f2 b 
 
-{- 3 Implication 
--}
+-- | == Connective: Implication 
+--
+--   === introduction rule: lambda abstraction
+--   === elimination rule: function application
+--
+--   Implication corresponds to the function type '(->)'.
+
 type Imp a b = a -> b
 
--- introduction rule: lambda abstraction
--- elimination rule: function application
+-- | == Connective: Equivalence  
+--
+--   === introduction rule
+--   === elimination rule:
 
 data Iff a b = Iff { a2b :: a -> b, b2a :: b -> a }
 
--- introdurction rule
--- elimination rule:
+{- Theorems Of Intuitionistic / Constructive Propositional Calculus - -}
 
 -- | Theorem: Law Of Identity (Classic Law Of Reasoning I/III) 
---   Logical interpretation:
---   Computational interpretation: identity function
+--
+--   * L.Ip.: 
+--   * C.Ip.: The identity function that maps its inputs to themselves   
+--
 id :: forall a. a -> a 
 id x = x 
 
+-- | Theorem:
+--
+--   * L.Ip.: 
+--   * C.Ip.:   
+--
+const :: forall a b. a -> b -> a
+const a _ = a
+
 -- | Theorem: Law Of Non-Contradiction (Classic Law Of Reasoning II/III) 
---   Logical interpretation:
---   Computational interpretation:
+--
+--   * L.Ip.: 
+--   * C.Ip.:   
+--
 nc :: forall a. Not (a, (Not a))
 nc p = (snd p) (fst p) 
 
 -- | Theorem: Law Of The Excluded Middle (Classic Law Of Reasoning III/III) 
 --   This does not hold in constructive logic
---   see below ...
+--   see below Theorems of Classical Propositional Calculus
 
 -- | Theorem: modus ponens
---   Computational interpetation: modus ponens is function application
-mp :: forall a b . a -> (a -> b) -> b
-mp a f = f a
+--
+--   * L.Ip.: 
+--   * C.Ip.: modus ponens is function application
+--
+--   mp is ($) in haskell 
+--
+mp :: forall a b. (a -> b) -> a -> b
+mp f a = f a
+
+-- | Theorem: reverse application
+--
+--   * L.Ip.: 
+--   * C.Ip.: rev is reverse application
+--
+--   rv is (&) in haskell 
+--
+rv :: forall a b. a -> (a -> b) -> b 
+rv = flip mp
 
 -- | Theorem: associativity of conjunction 
+--
+--   * L.Ip.: 
+--   * C.Ip.:   
+--
 conAssoc :: forall a b c . ((a, b), c) -> (a, (b, c))
 conAssoc x = (fst (fst x), (snd (fst x), snd x)) 
 
 -- | Theorem: commutativity of conjunction
+--
+--   * L.Ip.: 
+--   * C.Ip.:   
 conComm :: forall a b . (a, b) -> (b, a)
 conComm x = (snd x, fst x)
 
 -- | Theorem: associativity of disjunction
+--
 disAssoc :: forall a b c . Either a (Either b c) -> Either (Either a b) c
 disAssoc = elimOr (Left . Left) (elimOr (Left . Right) Right)
 
 -- | Theorem: commutativity of disjunction
+--
 disCommu :: forall a b . Either a b -> Either b a
 disCommu = elimOr Right Left
 
 -- | Theorem: conjunction elimination in the first hypothesis
---   Computational interpretation: currying
+--
+--   * L.Ip.: conjunction can be represented as implication in the premises
+--   * C.Ip.: currying a function   
+--
 curry :: forall a b c. ((a,b) -> c) -> a -> b -> c
 curry f x y = f (x,y)
 
 -- | Theorem: conjunction introduction with the first and second hypothesis
 --
---   * L.Ip.: Explosion
+--   * L.Ip.: Implication in the premises can be represented as conjunction
 --   * C.Ip.: uncurrying  
+--
 uncurry :: forall a b c. (a -> b -> c) -> ((a,b) -> c)
 uncurry f (x,y) = f x y 
 
@@ -186,6 +232,7 @@ uncurry f (x,y) = f x y
 --
 --   * L.Ip.: the order of premises doesnt matter for the conclusion
 --   * C.Ip.: flipping the order of function arguments
+--
 flip :: forall a b c. (a -> b -> c) -> b -> a -> c
 flip f b a = f a b
 
@@ -193,6 +240,7 @@ flip f b a = f a b
 --
 --   * L.Ip.: premisses don't deplete
 --   * C.Ip.: 
+--
 double :: a -> a -> a
 double = monotonicity id
 
@@ -200,7 +248,6 @@ double = monotonicity id
 --
 --   * L.Ip.: Explosion
 --   * C.Ip.: The Absurd is not provable  
---  
 notAbsurd :: Not Absurd
 notAbsurd = id
 
@@ -232,15 +279,17 @@ cp f nb a = nb (f a)
 --   > length' :: forall a. [a] -> Int
 --   >
 --   > length' = foldr (focus succ) 0
-
+--
 monotonicity' :: forall a b c. (a -> b) -> ((c,a) -> b)
 monotonicity' f = f . snd  
 
 -- | alternative formulation of monotonicity. 
+--
 monotonicity :: forall a b c. (a -> b) -> c -> a -> b
 monotonicity h0 _ = h0 
 
 -- | Theorem: Absorption
+--
 abs1 :: forall a b . Either a (a,b) -> a
 abs1 = elimOr id fst
 
@@ -248,9 +297,13 @@ abs2 :: forall a b . (a, Either a b) -> a
 abs2 = fst
 
 -- | Theorem: Frege's Theorem
+--
 --   * L.Ip.:   
 --   * C.Ip.:  
-frege :: forall p q r . (p -> (q -> r)) -> ((p -> q) -> (p -> r))
+--
+-- 'on' in Haskell
+--
+frege :: forall p q r . (p -> (q -> r)) -> (p -> q) -> p -> r
 frege f1 f2 p = (f1 p) (f2 p)  
 
 -- | Theorem: hypothetical syllogism: 
@@ -278,8 +331,7 @@ dis1 h0 = let d = fst h0; c = snd h0 in
 dis2 ::  Either (a,c) (b,c) -> (Either a b, c)
 dis2 = elimOr (\(a, c) -> (Left a, c)) (\(b, c) -> (Right b, c)) 
 
-
-{-- Classical Propositional Calculus ----------------------------------} 
+{- Theorems Of Classical Propositional Calculus --------------------- -}
 
 -- if we add one of the following (unproveable) combinators we get
 -- from intuitionistic propositional calculus to 
@@ -352,9 +404,8 @@ lem2Implies2or ::
         -> (Either (Not p) q)
 -- Proof:        
 lem2Implies2or lem h0 =
-    elimOr (l1 h0) l2 lem
+    elimOr (l1 h0) Left lem
   where 
     l1 :: (p -> q) -> p -> Either (Not p) q
     l1 f p = Right (f p) 
-    l2 :: Not p ->  Either (Not p) q
-    l2 = Left      
+ 
